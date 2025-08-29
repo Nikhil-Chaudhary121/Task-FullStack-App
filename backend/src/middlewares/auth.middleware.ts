@@ -1,3 +1,4 @@
+import { log } from "console";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -7,6 +8,8 @@ interface AuthRequest extends Request {
 
 const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
+  console.log(authHeader);
+  
   if (!authHeader) return res.status(401).json({ message: "No token provided" });
 
   const token = authHeader.split(" ")[1]; // "Bearer <token>"
@@ -14,7 +17,7 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as { id: string };
-    req.userId = decoded.id;
+    req.user = decoded.id;
     next();
   } catch (error) {
     res.status(401).json({ message: "Token invalid or expired" });
